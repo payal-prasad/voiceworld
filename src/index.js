@@ -3,12 +3,17 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const db = require('./models');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
 
 // middleware
 app.use(express.json());
 
 // routes
 app.use('/api/users', require('./api/users.routes'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // test route
 app.get('/', (req, res) => {

@@ -17,5 +17,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.User = require('./user.model')(sequelize, DataTypes);
+db.Message = require('./message.model')(sequelize, DataTypes);
+db.Meeting = require('./meeting.model')(sequelize, DataTypes);
 
 module.exports = db;
