@@ -1,40 +1,33 @@
-require('dotenv').config();
-
-const express = require('express');
-const app = express();
-const db = require('./models');
+require("dotenv").config();
+const express = require("express");
+const { sequelize } = require("./config/database");
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
+const swaggerDocument = require('./swagger/swagger');
 
-
-// middleware
+const app = express();
 app.use(express.json());
 
-// routes
-app.use('/api/users', require('./api/users.routes'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api/users", require("./routes/userRoutes"));
 
+// swagger route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// test route
-app.get('/', (req, res) => {
-  res.send('Voice World backend running');
+app.get("/", (req, res) => {
+  res.send("Voice World backend running");
 });
 
-// start server
-db.sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Database connected');
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("Database connected");
+
+       await sequelize.sync({ alter: true });
+      console.log('Database synced');
 
     app.listen(process.env.PORT || 3000, () => {
-      console.log('Server running on port 3000');
+      console.log("Server started on port 3000");
     });
-  })
-  .catch((err) => {
-    console.error('Database connection failed:', err.message);
-
-    
-    app.listen(process.env.PORT || 3000, () => {
-      console.log('Server running without DB connection');
-    });
-  });
+  } catch (err) {
+    console.error("Server startup failed:", err.message);
+  }
+})();

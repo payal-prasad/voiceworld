@@ -1,0 +1,99 @@
+openapi: "3.0.0"
+
+info:
+  title: "Voice World API"
+  version: "1.0.0"
+  description: "API documentation for Voice World backend services"
+
+servers:
+  - url: "http://localhost:3000"
+
+tags:
+  - name: Users
+    description: User authentication and profile management
+
+paths:
+
+  /api/users/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      description: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegister"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRegisterResponse"
+        "400":
+          description: Validation error or email already exists
+
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Fetch list of all registered users
+      responses:
+        "200":
+          description: Users fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    UserRegister:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Payal
+        email:
+          type: string
+          format: email
+          example: payal@gmail.com
+        password:
+          type: string
+          format: password
+          example: password123
+        avatar_url:
+          type: string
+          nullable: true
+          example: https://cdn.example.com/avatar.png
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Payal
+        email:
+          type: string
+          example: payal@gmail
