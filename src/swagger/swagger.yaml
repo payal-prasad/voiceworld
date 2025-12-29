@@ -11,15 +11,17 @@ servers:
 tags:
   - name: Users
     description: User authentication and profile management
+  - name: Meetings
+    description: Meeting management APIs
+  - name: Participants
+    description: Meeting participants management APIs
 
 paths:
 
   /api/users/register:
     post:
-      tags:
-        - Users
+      tags: [Users]
       summary: Register a new user
-      description: Create a new user account
       requestBody:
         required: true
         content:
@@ -32,16 +34,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserRegisterResponse"
+                $ref: "#/components/schemas/AuthResponse"
         "400":
           description: Validation error or email already exists
 
   /api/users:
     get:
-      tags:
-        - Users
+      tags: [Users]
       summary: Get all users
-      description: Fetch list of all registered users
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: Users fetched successfully
@@ -51,6 +53,234 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UserResponse"
+
+  /api/users/search:
+    get:
+      tags: [Users]
+      summary: Search users by name or email
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: email
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Users matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+
+  /api/users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: User not found
+
+    put:
+      tags: [Users]
+      summary: Update user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Validation error
+        "404":
+          description: User not found
+
+    delete:
+      tags: [Users]
+      summary: Deactivate user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User deactivated successfully
+        "404":
+          description: User not found
+
+
+
+  /api/meetings:
+    post:
+      tags: [Meetings]
+      summary: Create a new meeting
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeetingCreate"
+      responses:
+        "201":
+          description: Meeting created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Validation error
+
+    get:
+      tags: [Meetings]
+      summary: Get all meetings
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Meetings fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MeetingResponse"
+
+
+  /api/meetings/search:
+    get:
+      tags: [Meetings]
+      summary: Search meetings by criteria
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: host_user_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meetings matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MeetingResponse"
+
+
+  /api/meetings/{id}:
+    get:
+      tags: [Meetings]
+      summary: Get meeting by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meeting fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingResponse"
+        "404":
+          description: Meeting not found
+
+    put:
+      tags: [Meetings]
+      summary: Update meeting by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeetingUpdate"
+      responses:
+        "200":
+          description: Meeting updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Validation error
+        "404":
+          description: Meeting not found
+
+    delete:
+      tags: [Meetings]
+      summary: Delete meeting by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meeting deleted successfully
+        "404":
+          description: Meeting not found
+
 
 components:
 
@@ -64,10 +294,7 @@ components:
 
     UserRegister:
       type: object
-      required:
-        - name
-        - email
-        - password
+      required: [name, email, password]
       properties:
         name:
           type: string
@@ -78,11 +305,20 @@ components:
           example: payal@gmail.com
         password:
           type: string
-          format: password
           example: password123
         avatar_url:
           type: string
           nullable: true
+          example: https://cdn.example.com/avatar.png
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Payal Updated
+        avatar_url:
+          type: string
           example: https://cdn.example.com/avatar.png
 
     UserResponse:
@@ -96,4 +332,88 @@ components:
           example: Payal
         email:
           type: string
-          example: payal@gmail
+          example: payal@gmail.com
+        avatar_url:
+          type: string
+          example: https://cdn.example.com/avatar.png
+        role:
+          type: string
+          example: user
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-12-29T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-12-29T10:00:00Z"
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: "#/components/schemas/UserResponse"
+
+
+    MeetingCreate:
+      type: object
+      required: [title, start_time, end_time]
+      properties:
+        title:
+          type: string
+          example: Team Sync Meeting
+        start_time:
+          type: string
+          format: date-time
+          example: "2025-12-30T10:00:00Z"
+        end_time:
+          type: string
+          format: date-time
+          example: "2025-12-30T11:00:00Z"
+
+    MeetingUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Updated Team Sync
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+
+    MeetingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Team Sync Meeting
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        host_user_id:
+          type: integer
+          example: 5
+        is_deleted:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

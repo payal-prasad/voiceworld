@@ -8,6 +8,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/meetings", require("./routes/meetingRoutes"));
 
 // swagger route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
