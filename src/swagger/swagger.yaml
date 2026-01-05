@@ -1,0 +1,859 @@
+openapi: "3.0.0"
+info:
+  title: "Google Meet Clone API"
+  version: "1.0.0"
+  description: "Video conferencing and chat platform API"
+servers:
+  - url: "http://localhost:{port}"
+    variables:
+      port:
+        default: "4000"
+security:
+  - bearerAuth: []
+
+tags:
+  - name: "Users"
+    description: "User management operations"
+  - name: "Meetings"
+    description: "Meeting room operations"
+  - name: "Participants"
+    description: "Meeting participant management"
+  - name: "Messages"
+    description: "Chat message operations"
+  - name: "Invites"
+    description: "Meeting invite operations"
+
+paths:
+  # Users
+  /api/users/register:
+    post:
+      summary: "Register a new user"
+      tags:
+        - "Users"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegister"
+      responses:
+        "201":
+          description: "User registered successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: "Validation error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/users/login:
+    post:
+      summary: "Login user"
+      tags:
+        - "Users"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogin"
+      responses:
+        "200":
+          description: "Login successful"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: "Invalid credentials"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/users/profile:
+    get:
+      summary: "Get user profile"
+      tags:
+        - "Users"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "User profile"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # Meetings
+  /api/meetings:
+    get:
+      summary: "Get all meetings for user"
+      tags:
+        - "Meetings"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "List of meetings"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Meeting"
+    post:
+      summary: "Create a new meeting"
+      tags:
+        - "Meetings"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeetingCreate"
+      responses:
+        "201":
+          description: "Meeting created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+
+  /api/meetings/{id}:
+    get:
+      summary: "Get meeting by ID"
+      tags:
+        - "Meetings"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Meeting details"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+    put:
+      summary: "Update meeting"
+      tags:
+        - "Meetings"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeetingUpdate"
+      responses:
+        "200":
+          description: "Meeting updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+    delete:
+      summary: "Delete meeting"
+      tags:
+        - "Meetings"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Meeting deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Participants
+  /api/participants/getAllParticipants/{id}:
+    get:
+      summary: "Get all participants for a meeting"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "List of participants"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Participant"
+  /api/participants/joinMeeting/{id}:
+    post:
+      summary: "Join a meeting"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Joined meeting"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+  /api/participants/updateParticipant/{id}/{userId}:
+    put:
+      summary: "Update a participant"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParticipantUpdate"
+      responses:
+        "200":
+          description: "Participant updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+  /api/participants/leaveMeeting/{id}:
+    delete:
+      summary: "Leave a meeting"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Left meeting"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+  /api/participants/archiveParticipant/{id}:
+    delete:
+      summary: "Archive a participant"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Participant archived"
+  /api/participants/searchParticipantsByCriteria:
+    get:
+      summary: "Search participants by criteria"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "meeting_id"
+          in: "query"
+          schema:
+            type: integer
+        - name: "user_id"
+          in: "query"
+          schema:
+            type: integer
+        - name: "role"
+          in: "query"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Search results"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Participant"
+  /api/participants/muteParticipant/{id}/{userId}:
+    put:
+      summary: "Mute a participant (host only)"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Participant muted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+  /api/participants/kickParticipant/{id}/{userId}:
+    delete:
+      summary: "Kick a participant (host only)"
+      tags:
+        - "Participants"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Participant kicked"
+
+  # Messages
+  /api/messages/getAllMessages/{id}:
+    get:
+      summary: "Get all messages for a meeting"
+      tags:
+        - "Messages"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "List of messages"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+  /api/messages/sendMessage/{id}:
+    post:
+      summary: "Send a message"
+      tags:
+        - "Messages"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageSend"
+      responses:
+        "201":
+          description: "Message sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /api/messages/archiveMessage/{id}:
+    delete:
+      summary: "Archive a message"
+      tags:
+        - "Messages"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Message archived"
+  /api/messages/searchMessagesByCriteria:
+    get:
+      summary: "Search messages by criteria"
+      tags:
+        - "Messages"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "meeting_id"
+          in: "query"
+          schema:
+            type: integer
+        - name: "sender_id"
+          in: "query"
+          schema:
+            type: integer
+        - name: "content"
+          in: "query"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Search results"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+
+  # Invites
+  /api/invites/getAllInvites/{id}:
+    get:
+      summary: "Get all invites for a meeting"
+      tags:
+        - "Invites"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "List of invites"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invite"
+  /api/invites/sendInvite/{id}:
+    post:
+      summary: "Send an invite"
+      tags:
+        - "Invites"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InviteSend"
+      responses:
+        "201":
+          description: "Invite sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+  /api/invites/archiveInvite/{id}:
+    delete:
+      summary: "Archive an invite"
+      tags:
+        - "Invites"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Invite archived"
+  /api/invites/searchInvitesByCriteria:
+    get:
+      summary: "Search invites by criteria"
+      tags:
+        - "Invites"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "email"
+          in: "query"
+          schema:
+            type: string
+        - name: "meeting_id"
+          in: "query"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Search results"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invite"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: string
+          example: "abc123def456"
+        email:
+          type: string
+          example: "user@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        avatar_url:
+          type: string
+          example: "https://example.com/avatar.jpg"
+        role:
+          type: string
+          enum: ["admin", "user"]
+          example: "user"
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserRegister:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          example: "user@example.com"
+        password:
+          type: string
+          example: "password123"
+        name:
+          type: string
+          example: "John Doe"
+
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: "user@example.com"
+        password:
+          type: string
+          example: "password123"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "jwt_token_here"
+        user:
+          $ref: "#/components/schemas/User"
+
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Team Standup"
+        host_id:
+          type: integer
+          example: 1
+        meeting_id:
+          type: string
+          example: "ABC123"
+        url:
+          type: string
+          example: "https://meet.example.com/ABC123"
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: ["scheduled", "ongoing", "ended"]
+          example: "ongoing"
+        max_participants:
+          type: integer
+          example: 100
+        is_private:
+          type: boolean
+          example: false
+        password:
+          type: string
+          example: "meetingpass"
+        recording_url:
+          type: string
+          example: "https://example.com/recording.mp4"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MeetingCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: "Team Standup"
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        max_participants:
+          type: integer
+          example: 100
+        is_private:
+          type: boolean
+          example: false
+        password:
+          type: string
+          example: "meetingpass"
+
+    MeetingUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Updated Meeting"
+        status:
+          type: string
+          enum: ["scheduled", "ongoing", "ended"]
+          example: "ended"
+
+    Participant:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        meeting_id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 2
+        role:
+          type: string
+          enum: ["host", "presenter", "viewer"]
+          example: "viewer"
+        joined_at:
+          type: string
+          format: date-time
+        left_at:
+          type: string
+          format: date-time
+        is_muted:
+          type: boolean
+          example: false
+        is_video_on:
+          type: boolean
+          example: true
+        is_screen_sharing:
+          type: boolean
+          example: false
+
+    ParticipantUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: ["host", "presenter", "viewer"]
+        is_muted:
+          type: boolean
+        is_video_on:
+          type: boolean
+        is_screen_sharing:
+          type: boolean
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        meeting_id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 2
+        message:
+          type: string
+          example: "Hello everyone!"
+        type:
+          type: string
+          enum: ["text", "file"]
+          example: "text"
+        file_url:
+          type: string
+          example: "https://example.com/file.pdf"
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageSend:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "Hello everyone!"
+        type:
+          type: string
+          enum: ["text", "file"]
+          example: "text"
+        file_url:
+          type: string
+          example: "https://example.com/file.pdf"
+
+    Invite:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        meeting_id:
+          type: integer
+          example: 1
+        invited_email:
+          type: string
+          example: "guest@example.com"
+        status:
+          type: string
+          enum: ["pending", "accepted", "declined"]
+          example: "pending"
+        sent_at:
+          type: string
+          format: date-time
+
+    InviteSend:
+      type: object
+      required:
+        - invited_email
+      properties:
+        invited_email:
+          type: string
+          example: "guest@example.com"
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation successful"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation error"
+        message:
+          type: string
+          example: "Detailed error message"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT authentication token. Format: Bearer <token>"

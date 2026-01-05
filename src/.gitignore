@@ -1,7 +1,7 @@
-# Node.js modules
-/node_modules
-/node_modules/*
-
-
-# Environment variables
 .env
+node_modules/
+certificates/
+dev-certificates/
+lib/
+nginxconf/
+build/
