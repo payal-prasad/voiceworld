@@ -1,0 +1,7 @@
+# .env
+node_modules/
+certificates/
+dev-certificates/
+lib/
+nginxconf/
+# build/
