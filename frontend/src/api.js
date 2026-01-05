@@ -27,15 +27,14 @@ export const createMeeting = async ({ token }) => {
     headers: { Authorization: token, "Content-Type": "application/json" },
   };
 
-  const response = await fetch(url, options)
-  const data = await response.json()
+  const response = await fetch(url, options);
+  const data = await response.json();
 
   if (data.roomId) {
-    return { meetingId: data.roomId, err: null }
+    return { meetingId: data.roomId, err: null };
   } else {
-    return { meetingId: null, err: data.error }
+    return { meetingId: null, err: data.error };
   }
-
 };
 
 export const validateMeeting = async ({ roomId, token }) => {
@@ -46,19 +45,18 @@ export const validateMeeting = async ({ roomId, token }) => {
     headers: { Authorization: token, "Content-Type": "application/json" },
   };
 
-  const response = await fetch(url, options)
+  const response = await fetch(url, options);
 
   if (response.status === 400) {
-    const data = await response.text()
-    return { meetingId: null, err: data }
+    const data = await response.text();
+    return { meetingId: null, err: data };
   }
 
-  const data = await response.json()
+  const data = await response.json();
 
   if (data.roomId) {
-    return { meetingId: data.roomId, err: null }
+    return { meetingId: data.roomId, err: null };
   } else {
-    return { meetingId: null, err: data.error }
+    return { meetingId: null, err: data.error };
   }
-
 };

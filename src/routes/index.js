@@ -14,7 +14,8 @@ router.get("/ping", (req, res) => res.json({ message: "API alive!" }));
 router.get("/get-token", (req, res) => {
   const jwt = require("jsonwebtoken");
   const API_KEY = "64fb9cce-2afc-434a-afc1-838f7c2c99d4";
-  const SECRET_KEY = "56c5562b18d989267582c6a905a569768afbdee058ac5d7b820f879e47a3724c";
+  const SECRET_KEY =
+    "56c5562b18d989267582c6a905a569768afbdee058ac5d7b820f879e47a3724c";
   const options = {
     expiresIn: "120m",
     algorithm: "HS256",

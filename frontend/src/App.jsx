@@ -8,7 +8,7 @@ import { JoiningScreen } from "./components/screens/JoiningScreen.jsx";
 
 function App() {
   console.log("App component loading...");
-  
+
   const [token, setToken] = useState("");
   const [meetingId, setMeetingId] = useState("");
   const [participantName, setParticipantName] = useState("");
