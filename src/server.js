@@ -13,7 +13,7 @@ const httpServer = http.createServer(app);
 setupAssociations();
 httpServer.listen(config.port, () => {
   console.log(
-    `🚀 HTTP Server (REST APIs + Swagger) running on http://localhost:${config.port}`
+    `🚀 HTTP Server running (REST APIs + Swagger) running on http://localhost:${config.port}`
   );
   console.log(`📚 Swagger: http://localhost:${config.port}/api-docs`);
 });
